@@ -3,4 +3,4 @@
 // 不要把 service_role / secret key 放在這裡！
 
 export const SUPABASE_URL = 'https://qrgfnsiptdvynistjjqt.supabase.co';
-export const SUPABASE_KEY = '';
+export const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyZ2Zuc2lwdGR2eW5pc3RqanF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMzkzMzQsImV4cCI6MjEwOTcxNTMzNH0.xUxFOLLs7YxdJcXGZnf6Y1Pz2n8X5y9o-G7jLS_M8AI';
