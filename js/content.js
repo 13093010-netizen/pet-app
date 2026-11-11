@@ -259,3 +259,12 @@ export const COST_SOURCES = [
   { name: '愛心堡動物醫院收費標準（新北板橋）', url: 'https://lovefield.vet/pricing' },
   { name: '五福動物醫院收費標準（台中）', url: 'https://www.woofvet.com.tw/pricing/' },
 ];
+
+// 花費記帳的分類
+export const EXPENSE_CATS = [
+  { key: 'medical', name: '醫療', color: '#C2410C', items: ['門診', '疫苗', '驅蟲', '檢查', '結紮', '藥品', '住院', '急診'] },
+  { key: 'food', name: '飲食', color: '#2E7466', items: ['飼料', '主食罐', '零食', '保健品'] },
+  { key: 'supplies', name: '用品', color: '#2F5F8F', items: ['貓砂', '尿布墊', '玩具', '貓抓板', '外出籠'] },
+  { key: 'grooming', name: '美容', color: '#7B4FA0', items: ['洗澡', '剪毛', '剪指甲'] },
+  { key: 'other', name: '其他', color: '#6B7378', items: ['寵物保險', '寄宿', '訓練'] },
+];

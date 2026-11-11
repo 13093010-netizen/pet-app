@@ -4,7 +4,7 @@ import { assess, nextDate } from './rules.js';
 import {
   DISCLAIMER, signalsFor, signalText, fieldLabel, fieldHint, fieldOpts, adaptationTip,
   MOODS, CONCERNS, REHOME_STEPS, REMINDER_PRESETS, FREQ_LABEL, READINESS_QUESTIONS,
-  COST_GROUPS, COST_ASOF, COST_SOURCES, costPresets,
+  COST_GROUPS, COST_ASOF, COST_SOURCES, costPresets, EXPENSE_CATS,
 } from './content.js';
 import { todayISO, addDays, daysBetween, weekStart, fmtDate, weekdayShort, ageText, esc, store } from './util.js';
 
@@ -37,6 +37,7 @@ function page({ title = '', back = null, nav = null, body = '', action = '' }) {
     ? `<nav class="tabbar" aria-label="主選單">
         ${tab('#/home', '今日', icon.home, nav === 'home')}
         ${tab('#/history', '紀錄', icon.log, nav === 'history')}
+        ${tab('#/money', '花費', icon.coin, nav === 'money')}
         ${tab('#/reminders', '提醒', icon.bell, nav === 'reminders')}
         ${tab('#/pet', '寵物', icon.paw, nav === 'pet')}
       </nav>`
@@ -83,6 +84,7 @@ function errText(e) {
   if (/Email not confirmed/i.test(m)) return '請先到信箱點確認信，再回來登入';
   if (/Password should be at least/i.test(m)) return '密碼至少要 6 個字元';
   if (/rate limit/i.test(m)) return '嘗試太多次了，請稍等幾分鐘再試';
+  if (/public\.expenses/i.test(m)) return '記帳功能需要先在 Supabase 執行 002_expenses.sql 建立資料表';
   if (/Failed to fetch|NetworkError/i.test(m)) return '連不上網路，請確認網路後再試';
   return `發生錯誤：${m}`;
 }
@@ -724,6 +726,177 @@ async function viewPet() {
   $('#logout').addEventListener('click', () => db.signOut());
 }
 
+// ================= 畫面：花費記帳 =================
+let moneyMonth = null;
+
+function moneySeg(on) {
+  return `<div class="seg" role="tablist">
+    <a role="tab" href="#/money" class="${on === 'ledger' ? 'on' : ''}" aria-selected="${on === 'ledger'}">記帳</a>
+    <a role="tab" href="#/cost" class="${on === 'cost' ? 'on' : ''}" aria-selected="${on === 'cost'}">費用試算</a>
+  </div>`;
+}
+
+async function viewMoney(arg) {
+  const pet = S.pet;
+  const today = todayISO();
+  if (!moneyMonth) moneyMonth = today.slice(0, 7);
+  const ym = moneyMonth;
+  const [y, m] = ym.split('-').map(Number);
+  const monthStart = `${ym}-01`;
+  const monthEnd = `${ym}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`;
+  const yearList = await db.listExpenses(pet.id, `${y}-01-01`, `${y}-12-31`);
+  const list = yearList.filter((e) => e.spent_on >= monthStart && e.spent_on <= monthEnd);
+  const sum = (arr) => arr.reduce((t, e) => t + e.amount, 0);
+  const total = sum(list);
+  const money = (n) => `NT$ ${n.toLocaleString('zh-TW')}`;
+  const catOf = (k) => EXPENSE_CATS.find((c) => c.key === k) || EXPENSE_CATS[EXPENSE_CATS.length - 1];
+  const byCat = EXPENSE_CATS.map((c) => ({ ...c, sum: sum(list.filter((e) => e.category === c.key)) }))
+    .filter((c) => c.sum > 0).sort((a, b) => b.sum - a.sum);
+  const isNow = ym >= today.slice(0, 7);
+
+  const days = [...new Set(list.map((e) => e.spent_on))];
+
+  render(page({
+    nav: 'money',
+    title: '花費',
+    body: `
+      ${moneySeg('ledger')}
+      <section class="card">
+        <div class="month-nav">
+          <button class="icon-btn" id="prev-m" aria-label="上個月">${icon.back}</button>
+          <h2>${y} 年 ${m} 月</h2>
+          <button class="icon-btn flip" id="next-m" aria-label="下個月" ${isNow ? 'disabled' : ''}>${icon.back}</button>
+        </div>
+        <div class="money-total">
+          <span class="muted small">${esc(pet.name)}這個月的花費</span>
+          <b>${money(total)}</b>
+          <span class="muted small">${y} 年累計 ${money(sum(yearList))}</span>
+        </div>
+        ${byCat.length ? `
+          <div class="stack-bar" role="img" aria-label="${byCat.map((c) => `${c.name} ${Math.round((c.sum / total) * 100)}%`).join('、')}">
+            ${byCat.map((c) => `<span style="flex:${c.sum};background:${c.color}"></span>`).join('')}
+          </div>
+          <ul class="cat-legend">${byCat.map((c) => `
+            <li><i style="background:${c.color}"></i><span class="grow">${c.name}</span><span class="muted small">${Math.round((c.sum / total) * 100)}%</span><b>${money(c.sum)}</b></li>`).join('')}
+          </ul>` : ''}
+      </section>
+      <button class="btn primary" id="add-exp">${icon.plus}記一筆</button>
+      <form id="exp-form" class="card form" hidden novalidate>
+        <h2 id="exp-form-title">新增花費</h2>
+        <fieldset><legend>分類</legend>
+          <div class="chips cols-3">${EXPENSE_CATS.map((c, i) => radio('category', c.key, c.name, i === 0)).join('')}</div>
+        </fieldset>
+        <div class="chips wrap" id="quick-items"></div>
+        <label>項目<input name="item" required maxlength="40" placeholder="例如：門診"></label>
+        <label>金額（新台幣）<input name="amount" type="number" inputmode="numeric" min="1" step="1" required placeholder="0"></label>
+        <div class="two">
+          <label>日期<input name="spent_on" type="date" max="${today}" value="${today}"></label>
+          <label>地點（選填）<input name="place" maxlength="40" placeholder="醫院或店家"></label>
+        </div>
+        <label>備註（選填）<textarea name="note" maxlength="300" rows="2"></textarea></label>
+        <p class="form-error" id="exp-error" role="alert"></p>
+        <div class="two"><button type="button" class="btn ghost" id="exp-cancel">取消</button><button class="btn primary" type="submit">儲存</button></div>
+        <button type="button" class="btn ghost danger-text" id="exp-del" hidden>刪除這筆</button>
+      </form>
+      ${list.length ? days.map((d) => `
+        <section class="card exp-day">
+          <div class="row-between"><h2>${d === today ? '今天' : fmtDate(d)}</h2><span class="muted small">${money(sum(list.filter((e) => e.spent_on === d)))}</span></div>
+          <ul class="list">${list.filter((e) => e.spent_on === d).map((e) => `
+            <li><button class="exp-row" data-edit="${e.id}" aria-label="修改 ${esc(e.item)} ${e.amount} 元">
+              <i class="dot" style="background:${catOf(e.category).color}"></i>
+              <span class="grow"><span class="title">${esc(e.item)}</span><span class="muted small">${catOf(e.category).name}${e.place ? ' · ' + esc(e.place) : ''}${e.note ? ' · ' + esc(e.note) : ''}</span></span>
+              <b>${money(e.amount)}</b>
+            </button></li>`).join('')}
+          </ul>
+        </section>`).join('')
+        : `<section class="card empty-state"><p>這個月還沒有記帳。</p><p class="muted small">記下飼料、看診、用品的花費，就能知道養${esc(pet.name)}每個月要準備多少錢。</p></section>`}
+      `,
+  }));
+
+  const form = $('#exp-form');
+  const el = form.elements;
+  let editing = null;
+
+  const fillQuick = () => {
+    const cat = catOf(form.querySelector('input[name=category]:checked').value);
+    $('#quick-items').innerHTML = cat.items.map((t) => `<button type="button" class="chip-btn" data-q="${t}">${t}</button>`).join('');
+    $$('[data-q]').forEach((b) => b.addEventListener('click', () => { el.item.value = b.dataset.q; el.amount.focus(); }));
+  };
+  const openForm = (exp) => {
+    editing = exp || null;
+    form.hidden = false;
+    $('#add-exp').hidden = true;
+    $('#exp-form-title').textContent = exp ? '修改花費' : '新增花費';
+    $('#exp-del').hidden = !exp;
+    $('#exp-error').textContent = '';
+    const cat = exp ? exp.category : 'medical';
+    form.querySelector(`input[name=category][value=${cat}]`).checked = true;
+    el.item.value = exp ? exp.item : '';
+    el.amount.value = exp ? exp.amount : '';
+    el.spent_on.value = exp ? exp.spent_on : (isNow ? today : monthEnd);
+    el.place.value = exp?.place || '';
+    el.note.value = exp?.note || '';
+    fillQuick();
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const closeForm = () => { form.hidden = true; $('#add-exp').hidden = false; editing = null; };
+
+  $$('input[name=category]').forEach((r) => r.addEventListener('change', fillQuick));
+  $('#add-exp').addEventListener('click', () => openForm(null));
+  $('#exp-cancel').addEventListener('click', closeForm);
+  $$('[data-edit]').forEach((b) => b.addEventListener('click', () => openForm(list.find((e) => e.id === b.dataset.edit))));
+  $('#prev-m').addEventListener('click', () => { moneyMonth = shiftMonth(ym, -1); viewMoney(); });
+  $('#next-m').addEventListener('click', () => { if (!isNow) { moneyMonth = shiftMonth(ym, 1); viewMoney(); } });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const amount = Math.round(Number(el.amount.value));
+    const item = el.item.value.trim();
+    if (!item) return ($('#exp-error').textContent = '請輸入項目');
+    if (!amount || amount < 1) return ($('#exp-error').textContent = '請輸入金額');
+    const row = {
+      pet_id: pet.id,
+      category: form.querySelector('input[name=category]:checked').value,
+      item,
+      amount,
+      spent_on: el.spent_on.value || today,
+      place: el.place.value.trim() || null,
+      note: el.note.value.trim() || null,
+    };
+    if (editing) row.id = editing.id;
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    try {
+      await db.saveExpense(row);
+      moneyMonth = row.spent_on.slice(0, 7);
+      toast(editing ? '已修改' : `已記下 ${money(amount)}`);
+      if (location.hash !== '#/money') location.hash = '#/money';
+      else viewMoney();
+    } catch (err) {
+      $('#exp-error').textContent = errText(err);
+      btn.disabled = false;
+    }
+  });
+
+  $('#exp-del').addEventListener('click', async (e) => {
+    const b = e.currentTarget;
+    if (b.dataset.confirm !== '1') {
+      b.dataset.confirm = '1';
+      b.textContent = '確定要刪除嗎？再按一次';
+      return;
+    }
+    try { await db.deleteExpense(editing.id); toast('已刪除'); viewMoney(); } catch (err) { toast(errText(err), true); }
+  });
+
+  if (arg === 'new') openForm(null);
+}
+
+function shiftMonth(ym, n) {
+  const [y, m] = ym.split('-').map(Number);
+  const d = new Date(y, m - 1 + n, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
 // ================= 畫面：看診費用試算 =================
 function viewCost() {
   const pet = S.pet;
@@ -736,9 +909,11 @@ function viewCost() {
   const money = (n) => `NT$ ${n.toLocaleString('zh-TW')}`;
 
   render(page({
-    title: '看診費用試算',
-    back,
+    title: pet ? '花費' : '看診費用試算',
+    back: pet ? null : back,
+    nav: pet ? 'money' : null,
     body: `
+      ${pet ? moneySeg('cost') : ''}
       <section class="card soft">
         <p>選擇可能會做的項目，看看大概要準備多少錢。也可以先點下面的常見情況，一次帶入。</p>
       </section>
@@ -762,6 +937,10 @@ function viewCost() {
               </div>
             </li>`).join('')}</ul>
         </section>`).join('')}
+      ${pet ? `<a class="choice card" href="#/money/new">
+        <span class="choice-title">看完醫生了？</span>
+        <span class="muted">把實際花費記到帳本，之後比較好規劃</span>${icon.chevron}
+      </a>` : ''}
       <section class="card">
         <h2>看診時可以這樣做</h2>
         <ul class="bullets">
@@ -888,6 +1067,7 @@ async function route() {
   try {
     if (name === 'readiness') return await viewReadiness();
     if (name === 'cost') return viewCost();
+    if (name === 'money' && S.pet) { loading(); return await viewMoney(arg); }
     if (name === 'pet' && arg === 'new') return viewPetForm(false);
     if (!S.pet) {
       return name === 'welcome' ? viewWelcome() : (location.hash = '#/welcome');

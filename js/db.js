@@ -108,3 +108,21 @@ export async function saveReadiness(answers, score) {
 export async function lastReadiness() {
   return check(await sb.from('readiness').select('*').order('created_at', { ascending: false }).limit(1).maybeSingle());
 }
+
+// ---------- 花費記帳 ----------
+export async function listExpenses(petId, from, to) {
+  return check(
+    await sb.from('expenses').select('*').eq('pet_id', petId).gte('spent_on', from).lte('spent_on', to)
+      .order('spent_on', { ascending: false }).order('created_at', { ascending: false }),
+  );
+}
+export async function saveExpense(e) {
+  if (e.id) {
+    const { id, ...rest } = e;
+    return check(await sb.from('expenses').update(rest).eq('id', id).select().single());
+  }
+  return check(await sb.from('expenses').insert(e).select().single());
+}
+export async function deleteExpense(id) {
+  return check(await sb.from('expenses').delete().eq('id', id));
+}

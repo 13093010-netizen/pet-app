@@ -22,6 +22,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -275,7 +276,7 @@ details.card.acc summary { border-bottom: 0; font-weight: 700; min-height: 32px;
 .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--brand-soft); border-top-color: var(--brand); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .toast {
-  position: fixed; left: 50%; bottom: calc(var(--tabs) + var(--safe-b) + 16px); transform: translate(-50%, 20px);
+  position: fixed; left: 50%; top: calc(var(--safe-t) + 12px); transform: translate(-50%, -20px);
   background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px;
   opacity: 0; pointer-events: none; transition: .2s; z-index: 50; max-width: calc(100% - 32px);
 }
@@ -303,3 +304,31 @@ details.card.acc summary { border-bottom: 0; font-weight: 700; min-height: 32px;
 .cost-bar .grow { display: flex; flex-direction: column; }
 .cost-bar b { font-size: 20px; color: var(--brand-dark); }
 .sources { margin: 0; padding-left: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+
+/* 花費記帳 */
+.has-tabs .cost-bar { bottom: calc(var(--tabs) + var(--safe-b)); margin-bottom: 0; padding-bottom: 14px; border-radius: 0; }
+.month-nav { display: flex; align-items: center; justify-content: space-between; }
+.month-nav h2 { font-size: 17px; }
+.month-nav .icon-btn:disabled { opacity: .3; }
+.flip svg { transform: rotate(180deg); }
+.money-total { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 6px; }
+.money-total b { font-size: 30px; line-height: 1.25; color: var(--ink); }
+.stack-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--soft); }
+.stack-bar span { min-width: 4px; }
+.cat-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cat-legend li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.cat-legend i, .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.cat-legend b { min-width: 86px; text-align: right; }
+.exp-day { gap: 4px; }
+.exp-row {
+  width: 100%; display: flex; align-items: center; gap: 10px; min-height: 56px;
+  background: none; border: 0; border-bottom: 1px solid var(--soft); padding: 6px 0; text-align: left; cursor: pointer;
+}
+.list li:last-child .exp-row { border-bottom: 0; }
+.exp-row .grow { display: flex; flex-direction: column; }
+.exp-row .title { font-weight: 500; }
+.exp-row b { font-size: 15px; white-space: nowrap; }
+.danger-text { color: var(--bad); border-color: #E7B9B0; }
+.seg + .card, .seg + section { margin-top: 0; }
+.has-tabs .seg { margin-top: 2px; }
+.tab { font-size: 11.5px; }
