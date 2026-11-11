@@ -201,3 +201,61 @@ export const READINESS_QUESTIONS = [
     gap: '缺少備援照顧者。先找好一位可以臨時幫忙的人，或查好附近的寵物旅館。',
   },
 ];
+
+// 看診費用試算（新台幣，2026 年參考行情）
+// 低標：實際動物醫院公開價目；高標：台北市獸醫師公會單項收費上限或財經網站估計
+export const COST_ASOF = '2026 年 11 月';
+export const COST_GROUPS = [
+  {
+    group: '看診',
+    items: [
+      { key: 'visit', name: '一般門診（含基本藥物）', min: 500, max: 3000 },
+      { key: 'er', name: '夜間急診掛號', min: 1000, max: 4000, note: '營業時間外，各院差很多' },
+    ],
+  },
+  {
+    group: '疫苗與預防',
+    items: [
+      { key: 'vac_cat', name: '貓三合一疫苗', min: 600, max: 1600, species: 'cat' },
+      { key: 'vac_dog8', name: '狗八合一疫苗', min: 500, max: 1300, species: 'dog' },
+      { key: 'vac_dog10', name: '狗十合一疫苗', min: 700, max: 1600, species: 'dog' },
+      { key: 'rabies', name: '狂犬病疫苗', min: 200, max: 1200, note: '無佐劑疫苗較貴' },
+      { key: 'chip', name: '晶片植入＋登記', min: 250, max: 300 },
+    ],
+  },
+  {
+    group: '檢查',
+    items: [
+      { key: 'checkup', name: '健康檢查套組', min: 2000, max: 6000 },
+      { key: 'blood', name: '血液檢查（血球＋生化）', min: 1500, max: 4500 },
+      { key: 'xray', name: 'X 光', unit: '張', qty: true, min: 500, max: 1600 },
+      { key: 'us', name: '腹部超音波', min: 1000, max: 3000 },
+    ],
+  },
+  {
+    group: '手術與住院',
+    items: [
+      { key: 'neuter_m', name: '結紮（公）', min: 3000, max: 8000 },
+      { key: 'neuter_f', name: '結紮（母）', min: 5000, max: 15000 },
+      { key: 'dental', name: '洗牙（需麻醉）', min: 3000, max: 8000 },
+      { key: 'stay', name: '住院', unit: '天', qty: true, min: 700, max: 3500, note: '籠位費依體型，不含藥物與治療' },
+    ],
+  },
+];
+
+// 常見情境：一鍵帶入
+export function costPresets(species, sex) {
+  const vac = species === 'dog' ? 'vac_dog8' : 'vac_cat';
+  const neuter = sex === 'male' ? 'neuter_m' : 'neuter_f';
+  return [
+    { key: 'first', name: '第一年基本照顧', items: { [vac]: 2, rabies: 1, chip: 1, checkup: 1, [neuter]: 1 } },
+    { key: 'tummy', name: '腸胃不舒服看診', items: { visit: 1, blood: 1, xray: 2 } },
+    { key: 'night', name: '半夜急診', items: { er: 1, blood: 1, xray: 2, stay: 1 } },
+  ];
+}
+
+export const COST_SOURCES = [
+  { name: '台北市獸醫師公會單項收費上限（Money101 整理，2026/8）', url: 'https://www.money101.com.tw/blog/%E5%8B%95%E7%89%A9%E9%86%AB%E9%99%A2%E6%94%B6%E8%B2%BB%E9%A0%85%E7%9B%AE' },
+  { name: '愛心堡動物醫院收費標準（新北板橋）', url: 'https://lovefield.vet/pricing' },
+  { name: '五福動物醫院收費標準（台中）', url: 'https://www.woofvet.com.tw/pricing/' },
+];

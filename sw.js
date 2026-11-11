@@ -1,6 +1,6 @@
 // Service worker：讓 App 可以加到主畫面，網路不穩時也能打開畫面
 // 修改 App 檔案後，把版本號 +1，手機才會拿到新版
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = [
   './',
   './index.html',

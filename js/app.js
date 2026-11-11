@@ -4,6 +4,7 @@ import { assess, nextDate } from './rules.js';
 import {
   DISCLAIMER, signalsFor, signalText, fieldLabel, fieldHint, fieldOpts, adaptationTip,
   MOODS, CONCERNS, REHOME_STEPS, REMINDER_PRESETS, FREQ_LABEL, READINESS_QUESTIONS,
+  COST_GROUPS, COST_ASOF, COST_SOURCES, costPresets,
 } from './content.js';
 import { todayISO, addDays, daysBetween, weekStart, fmtDate, weekdayShort, ageText, esc, store } from './util.js';
 
@@ -21,6 +22,7 @@ const icon = {
   check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>',
   alert: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></svg>',
   info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>',
+  coin: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.4 0-2.5.8-2.5 1.9 0 2.6 5 1.4 5 4.1 0 1.1-1.1 2-2.5 2-1.1 0-2-.4-2.5-1.2M12 6.5V8M12 16v1.5"/></svg>',
   chevron: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
 };
 
@@ -508,7 +510,11 @@ async function viewStatus() {
       <section class="card redflag">
         <h2>${icon.alert}出現這些請盡快就醫</h2>
         <ul class="bullets">${redFlags.map((r) => `<li>${r}</li>`).join('')}</ul>
-      </section>`,
+      </section>
+      <a class="choice card" href="#/cost">
+        <span class="choice-title">看診大概要花多少？</span>
+        <span class="muted">用費用試算先有個心理準備</span>${icon.chevron}
+      </a>`,
   }));
 }
 
@@ -705,6 +711,7 @@ async function viewPet() {
         <li class="list-row"><span class="grow">${esc(p.name)}</span>${p.id === pet.id ? '<span class="tag">目前</span>' : `<button class="btn small light" data-pick="${p.id}">切換</button>`}</li>`).join('')}</ul></section>` : ''}
       <section class="card menu">
         <a href="#/pet/new">${icon.plus}<span class="grow">新增另一隻寵物</span>${icon.chevron}</a>
+        <a href="#/cost">${icon.coin}<span class="grow">看診費用試算</span>${icon.chevron}</a>
         <a href="#/readiness">${icon.log}<span class="grow">飼養準備度評估${ready ? `<span class="muted small">（上次 ${ready.score} 分）</span>` : ''}</span>${icon.chevron}</a>
         <a href="#/support">${icon.info}<span class="grow">飼主支持</span>${icon.chevron}</a>
       </section>
@@ -715,6 +722,87 @@ async function viewPet() {
   }));
   $$('[data-pick]').forEach((b) => b.addEventListener('click', () => { selectPet(b.dataset.pick); viewPet(); }));
   $('#logout').addEventListener('click', () => db.signOut());
+}
+
+// ================= 畫面：看診費用試算 =================
+function viewCost() {
+  const pet = S.pet;
+  const sp = pet?.species || 'cat';
+  const back = S.pets.length ? '#/pet' : '#/welcome';
+  const qty = {};
+  const groups = COST_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => !i.species || i.species === sp) }));
+  const all = groups.flatMap((g) => g.items);
+  const presets = costPresets(sp, pet?.sex);
+  const money = (n) => `NT$ ${n.toLocaleString('zh-TW')}`;
+
+  render(page({
+    title: '看診費用試算',
+    back,
+    body: `
+      <section class="card soft">
+        <p>選擇可能會做的項目，看看大概要準備多少錢。也可以先點下面的常見情況，一次帶入。</p>
+      </section>
+      <section class="card">
+        <h2>常見情況</h2>
+        <div class="chips wrap">${presets.map((p) => `<button type="button" class="chip-btn" data-preset="${p.key}">${p.name}</button>`).join('')}</div>
+      </section>
+      ${groups.map((g) => `
+        <section class="card">
+          <h2>${g.group}</h2>
+          <ul class="list">${g.items.map((i) => `
+            <li class="list-row tall cost-row" data-row="${i.key}">
+              <div class="grow">
+                <p class="title">${i.name}</p>
+                <p class="muted small">${money(i.min)} – ${i.max.toLocaleString('zh-TW')}${i.unit ? ` / ${i.unit}` : ''}${i.note ? ` · ${i.note}` : ''}</p>
+              </div>
+              <div class="stepper">
+                <button type="button" class="step" data-minus="${i.key}" aria-label="減少 ${i.name}">−</button>
+                <output id="q-${i.key}" aria-live="polite">0</output>
+                <button type="button" class="step" data-plus="${i.key}" aria-label="增加 ${i.name}">＋</button>
+              </div>
+            </li>`).join('')}</ul>
+        </section>`).join('')}
+      <section class="card">
+        <h2>看診時可以這樣做</h2>
+        <ul class="bullets">
+          <li>做檢查或治療前，先請醫院說明要做哪些項目、大概多少錢。</li>
+          <li>結帳時索取收費明細，看不懂的項目可以直接問。</li>
+          <li>平常每月存一點寵物醫療預備金，或考慮寵物保險。</li>
+        </ul>
+      </section>
+      <section class="card">
+        <p class="muted small">價格為 ${COST_ASOF} 整理的參考區間。低標來自動物醫院公開價目，高標參考台北市獸醫師公會單項收費上限。實際費用會因醫院、地區、體型與病情而不同，請以醫院報價為準。</p>
+        <ul class="sources">${COST_SOURCES.map((s) => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a></li>`).join('')}</ul>
+      </section>
+      <div class="cost-bar" role="status" aria-live="polite">
+        <div class="grow"><span class="muted small" id="cost-count">還沒選項目</span><b id="cost-total">NT$ 0</b></div>
+        <button type="button" class="btn small ghost" id="cost-clear">清除</button>
+      </div>`,
+  }));
+
+  const update = () => {
+    let lo = 0, hi = 0, n = 0;
+    for (const i of all) {
+      const q = qty[i.key] || 0;
+      $(`#q-${i.key}`).textContent = q;
+      $(`[data-row="${i.key}"]`).classList.toggle('picked', q > 0);
+      lo += i.min * q;
+      hi += i.max * q;
+      if (q) n++;
+    }
+    $('#cost-total').textContent = n ? `${money(lo)} – ${hi.toLocaleString('zh-TW')}` : 'NT$ 0';
+    $('#cost-count').textContent = n ? `已選 ${n} 項，預估` : '還沒選項目';
+  };
+  $$('[data-plus]').forEach((b) => b.addEventListener('click', () => { qty[b.dataset.plus] = Math.min(30, (qty[b.dataset.plus] || 0) + 1); update(); }));
+  $$('[data-minus]').forEach((b) => b.addEventListener('click', () => { qty[b.dataset.minus] = Math.max(0, (qty[b.dataset.minus] || 0) - 1); update(); }));
+  $$('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+    const p = presets.find((x) => x.key === b.dataset.preset);
+    for (const k of Object.keys(qty)) delete qty[k];
+    Object.assign(qty, p.items);
+    update();
+    toast(`已帶入：${p.name}`);
+  }));
+  $('#cost-clear').addEventListener('click', () => { for (const k of Object.keys(qty)) delete qty[k]; update(); });
 }
 
 // ================= 畫面：飼養準備度評估 =================
@@ -799,6 +887,7 @@ async function route() {
 
   try {
     if (name === 'readiness') return await viewReadiness();
+    if (name === 'cost') return viewCost();
     if (name === 'pet' && arg === 'new') return viewPetForm(false);
     if (!S.pet) {
       return name === 'welcome' ? viewWelcome() : (location.hash = '#/welcome');

@@ -285,3 +285,21 @@ details.card.acc summary { border-bottom: 0; font-weight: 700; min-height: 32px;
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation-duration: 0s !important; }
 }
+
+/* 看診費用試算 */
+.stepper { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.stepper output { min-width: 26px; text-align: center; font-weight: 700; font-size: 16px; }
+.step { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); font-size: 20px; line-height: 1; cursor: pointer; color: var(--brand); }
+.step:active { background: var(--brand-soft); }
+.cost-row.picked .title { color: var(--brand-dark); font-weight: 700; }
+.cost-row.picked .step[data-minus] { border-color: var(--brand); }
+.cost-bar {
+  position: sticky; bottom: 0; z-index: 4; margin: 0 -16px -32px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px calc(var(--safe-b) + 14px);
+  background: var(--card); border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 16px rgba(30, 42, 44, .06);
+}
+.cost-bar .grow { display: flex; flex-direction: column; }
+.cost-bar b { font-size: 20px; color: var(--brand-dark); }
+.sources { margin: 0; padding-left: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
