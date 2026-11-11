@@ -942,5 +942,18 @@ async function start() {
 start();
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  // 有新版時自動重新載入一次
+  let reloaded = false;
+  const hadController = Boolean(navigator.serviceWorker.controller);
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !reloaded) { reloaded = true; location.reload(); }
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then((reg) => {
+        reg.update();
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update(); });
+      })
+      .catch(() => {});
+  });
 }

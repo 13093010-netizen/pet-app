@@ -1,6 +1,6 @@
 // Service worker：讓 App 可以加到主畫面，網路不穩時也能打開畫面
 // 修改 App 檔案後，把版本號 +1，手機才會拿到新版
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL = [
   './',
   './index.html',
@@ -32,7 +32,8 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request)
+    // no-cache：每次都向伺服器確認有沒有新版，避免手機一直用舊檔案
+    fetch(e.request, { cache: 'no-cache' })
       .then((res) => {
         const copy = res.clone();
         caches.open(VERSION).then((c) => c.put(e.request, copy));
