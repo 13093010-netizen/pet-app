@@ -1,0 +1,173 @@
+/* =========================================================
+   app.css — 設計稿以外、App 需要的元件
+   一律用 tokens.css 的變數，風格和 components.css 一致。
+   ========================================================= */
+
+/* ---------- 共用 ---------- */
+.muted { color: var(--color-muted); }
+.small { font-size: var(--fs-sm); }
+.center { text-align: center; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.row { display: flex; align-items: center; gap: var(--space-2); }
+.row-between { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.link { font-size: var(--fs-sm); font-weight: 700; color: var(--color-sage-link); background: none; border: 0; padding: 0; }
+.stack { display: flex; flex-direction: column; gap: var(--space-3); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+p { margin: 0; }
+.lines { display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.55; }
+.lines span { display: block; }
+.btn { text-decoration: none; width: 100%; }
+.btn--small { width: auto; }
+.btn--ghost { background: transparent; color: var(--color-ink-2); border: 1px solid var(--color-line-strong); }
+.btn--danger { background: transparent; color: var(--color-danger); border: 1px solid #EBC3B8; }
+.btn:disabled { opacity: .55; }
+.icon-btn { flex-shrink: 0; color: var(--color-ink); text-decoration: none; }
+.tag { font-size: 12px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-soft); color: var(--color-muted); }
+.tag--peach { background: var(--color-peach); color: var(--color-peach-ink); font-weight: 700; }
+
+/* 頁面標題列（有返回鍵） */
+.topbar { display: flex; align-items: center; gap: 10px; }
+.topbar .page-title { flex: 1; font-size: var(--fs-lg); }
+
+/* 給大頭貼 */
+.avatar {
+  width: 52px; height: 52px; border-radius: var(--radius-pill); flex-shrink: 0;
+  background: #F6D7BF; color: #7A4A28; display: grid; place-items: center;
+  font-size: 20px; font-weight: 700; border: 0; text-decoration: none;
+}
+.avatar--lg { width: 64px; height: 64px; font-size: 24px; }
+
+/* ---------- 表單 ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); font-weight: 700; color: var(--color-ink-2); }
+.input, .field input, .field select, .field textarea {
+  width: 100%; min-height: 48px; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--color-line-strong); background: var(--color-surface);
+  font: inherit; font-size: 16px; font-weight: 400; color: var(--color-ink);
+}
+.field textarea { min-height: 72px; resize: vertical; }
+.input:focus, .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--color-sage); outline-offset: 1px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.form-error { color: var(--color-danger); font-size: var(--fs-sm); }
+.form-error:empty { display: none; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+legend { padding: 0; font-size: var(--fs-sm); font-weight: 700; color: var(--color-ink-2); margin-bottom: 6px; }
+
+/* 單選／複選（表單用，外觀同 chip） */
+.opt { position: relative; display: inline-flex; }
+.opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.opt span {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 6px 14px; width: 100%;
+  border-radius: var(--radius-pill); border: 1px solid var(--color-line-strong); background: var(--color-surface); font-size: 14px; text-align: center; line-height: 1.35;
+}
+.opt input:checked + span { background: var(--color-ink); color: #fff; border-color: var(--color-ink); font-weight: 700; }
+.opt input:focus-visible + span { outline: 2px solid var(--color-sage); outline-offset: 2px; }
+.chips--fill .opt { flex-grow: 1; }
+.chips--stack { flex-direction: column; }
+.chips--stack .opt span { justify-content: flex-start; border-radius: var(--radius-sm); padding: 10px 14px; }
+.chip:focus-visible, .btn:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--color-sage); outline-offset: 2px; }
+
+/* ---------- 提示框（參賽規定的固定提示文字） ---------- */
+.disclaimer { display: flex; gap: 8px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-surface); border: 1.5px solid var(--color-line-strong); }
+.disclaimer svg { flex-shrink: 0; color: var(--color-sage-ink); margin-top: 2px; }
+.disclaimer p { font-size: 12.5px; line-height: 1.6; color: var(--color-ink-2); }
+
+/* ---------- 登入 ---------- */
+.brand { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 24px 0 8px; }
+.brand-mark { width: 68px; height: 68px; border-radius: 22px; background: var(--color-sage); color: #fff; display: grid; place-items: center; }
+.brand-mark svg { width: 36px; height: 36px; }
+.seg--links { display: grid; grid-template-columns: 1fr 1fr; }
+.seg--links a { height: 38px; display: grid; place-items: center; border-radius: var(--radius-pill); font-size: 14px; color: var(--color-ink-2); }
+.seg--links a[aria-selected="true"] { background: #fff; color: var(--color-ink); font-weight: 700; }
+
+/* ---------- 今天 ---------- */
+.mood-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.mood-row .chip { padding: 0 4px; }
+.install { flex-direction: row; align-items: flex-start; }
+
+/* ---------- 紀錄列表 ---------- */
+.day-row { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.day-row .stats { flex: 1; }
+.stat__num small { font-size: 12px; font-weight: 500; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---------- 提醒 ---------- */
+.ticket__stub { padding: 6px 0; }
+.ticket__look { line-height: 1.35; }
+.ticket__more { width: 28px; height: 28px; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-ink-2); display: grid; place-items: center; flex-shrink: 0; padding: 0; }
+.ticket.is-off { opacity: .55; }
+.time-input { font-size: 40px; font-weight: 700; text-align: center; border: 0; background: transparent; color: var(--color-ink); width: 100%; min-height: 64px; font-family: inherit; }
+.upcoming { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; min-height: 32px; }
+
+/* ---------- 列表 ---------- */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.list-row { display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--color-line); }
+.list-row:last-child { border-bottom: 0; }
+.menu { padding: 2px 16px; gap: 0; }
+.menu a { display: flex; align-items: center; gap: 12px; min-height: 54px; border-bottom: 1px solid var(--color-line); font-size: 15px; }
+.menu a:last-child { border-bottom: 0; }
+.menu svg { width: 20px; height: 20px; flex-shrink: 0; }
+.acc summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 46px; cursor: pointer; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--color-line); }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary svg { transition: transform .15s; color: var(--color-muted); }
+.acc[open] summary svg { transform: rotate(90deg); }
+.acc ul, .acc ol { margin: 8px 0 10px; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.55; }
+.bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.55; }
+
+/* ---------- 花費：記帳 ---------- */
+.month-nav { display: flex; align-items: center; justify-content: space-between; }
+.month-nav .icon-btn { background: var(--color-soft); }
+.month-nav .icon-btn:disabled { opacity: .35; }
+.flip svg { transform: rotate(180deg); }
+.money-total { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; }
+.money-total b { font-size: 32px; line-height: 1.2; }
+.stack-bar { display: flex; height: 10px; border-radius: var(--radius-pill); overflow: hidden; gap: 2px; background: var(--color-soft); }
+.stack-bar span { min-width: 4px; }
+.cat-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cat-legend li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.cat-legend b { min-width: 84px; text-align: right; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.exp-row { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 54px; background: none; border: 0; border-bottom: 1px solid var(--color-line); padding: 6px 0; text-align: left; }
+.list li:last-child .exp-row { border-bottom: 0; }
+.exp-row .grow { display: flex; flex-direction: column; }
+.exp-row b { white-space: nowrap; }
+
+/* ---------- 花費：試算 ---------- */
+.cost-row { display: flex; align-items: center; gap: 8px; min-height: 64px; border-bottom: 1px solid var(--color-line); }
+.cost-row:last-child { border-bottom: 0; }
+.cost-row .stepper__btn { width: 38px; height: 38px; font-size: 20px; }
+.cost-row output { min-width: 22px; text-align: center; font-weight: 700; font-size: 17px; }
+.cost-row.picked .cost-name { font-weight: 700; color: var(--color-sage-ink); }
+.cost-bar {
+  position: sticky; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); z-index: 5;
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  background: var(--color-ink); color: #fff; border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(46, 42, 38, .18);
+}
+.cost-bar .grow { display: flex; flex-direction: column; }
+.cost-bar small { color: var(--color-on-dark); font-size: 12px; }
+.cost-bar b { font-size: 20px; }
+.cost-bar .btn--ghost { color: #fff; border-color: rgba(255, 255, 255, .35); }
+.sources { margin: 0; padding-left: 18px; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px; }
+.sources a { text-decoration: underline; color: var(--color-sage-link); }
+
+/* ---------- 餵食 ---------- */
+.feed-num { font-size: 40px; font-weight: 700; line-height: 1.1; }
+.stat--dark { background: #4A4540; text-align: center; color: #fff; }
+.stat--dark b { font-size: 16px; }
+
+/* ---------- 寵物 ---------- */
+.pet-head { display: flex; align-items: center; gap: 14px; }
+.pet-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+/* ---------- 載入、提示 ---------- */
+.center-fill { min-height: 60vh; display: grid; place-items: center; }
+.spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--color-sage-tint); border-top-color: var(--color-sage); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast {
+  position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 12px); transform: translate(-50%, -20px);
+  background: var(--color-ink); color: #fff; padding: 10px 18px; border-radius: var(--radius-pill); font-size: 14px;
+  opacity: 0; pointer-events: none; transition: .2s; z-index: 50; max-width: calc(100% - 32px);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.bad { background: var(--color-danger); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation-duration: 0s !important; } }

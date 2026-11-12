@@ -1,16 +1,29 @@
 {
-  "name": "安心養",
-  "short_name": "安心養",
+  "name": "毛孩安心指南",
+  "short_name": "毛孩安心",
   "description": "陪新手飼主度過最需要幫忙的前 90 天",
   "lang": "zh-Hant",
   "start_url": "./#/home",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F5F6F2",
-  "theme_color": "#F5F6F2",
+  "background_color": "#FAF6F0",
+  "theme_color": "#FAF6F0",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

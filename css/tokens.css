@@ -1,0 +1,54 @@
+/* =========================================================
+   tokens.css — 設計變數（Design Tokens）
+   這裡就是整個 app 的「樣式表」：顏色、字型、圓角、間距。
+   改這裡的一個值，所有頁面一起變。
+   對應 Figma：每個變數可以建成 Figma 的 Variables / Styles，名稱照抄。
+   ========================================================= */
+:root {
+  /* 底色與文字 */
+  --color-bg: #FAF6F0;          /* 奶油底色 */
+  --color-surface: #FFFFFF;     /* 卡片 */
+  --color-soft: #F3EEE7;        /* 次要按鈕、輸入框底 */
+  --color-line: #F0EAE2;        /* 分隔線 */
+  --color-line-strong: #DDD5CA; /* 外框線 */
+  --color-ink: #2E2A26;         /* 主要文字、深色按鈕 */
+  --color-ink-2: #4D4740;       /* 次要文字 */
+  --color-muted: #6B645C;       /* 說明文字（在奶油底上對比度 > 4.5:1） */
+  --color-on-dark: #E9E3DA;     /* 深色底上的淡色文字 */
+
+  /* 主色：鼠尾草綠＝安心、完成 */
+  --color-sage: #6E9E7E;
+  --color-sage-ink: #34563F;
+  --color-sage-link: #4F7A5E;
+  --color-sage-tint: #D7E8DC;
+  --color-sage-light: #CFE3D5;
+
+  /* 輔色：蜜桃＝提醒注意；奶油黃＝餵食；薰衣草＝費用、陪伴 */
+  --color-peach: #FCE6D8;
+  --color-peach-ink: #8A3F12;
+  --color-peach-strong: #E0915F;
+  --color-butter: #F8E7B0;
+  --color-lav: #ECE7F7;
+  --color-lav-ink: #4A3D7A;
+  --color-danger: #C9503A;
+
+  /* 字型與字級 */
+  --font: 'Noto Sans TC', -apple-system, 'PingFang TC', sans-serif;
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-num: 26px;   /* 紀錄數字 */
+
+  /* 圓角與間距（8 的倍數系統） */
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+}

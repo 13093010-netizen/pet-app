@@ -1,0 +1,175 @@
+/* =========================================================
+   components.css — 共用元件
+   每個元件一個 class，HTML 只要套 class 就有樣子。
+   想改某個元件的樣子，就改這裡；想改顏色，回 tokens.css。
+   ========================================================= */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--color-ink);
+  background: #E7E2DA;              /* 電腦上看時，手機外面的背景 */
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+h1, h2 { margin: 0; }
+
+/* ---------- 版面：手機框 ----------
+   電腦上：置中顯示一支 390×844 的手機
+   手機上：滿版（RWD，見最下面的 @media） */
+.phone {
+  position: relative;
+  width: 390px;
+  min-height: 844px;
+  margin: 24px auto;
+  background: var(--color-bg);
+  border-radius: 40px;
+  overflow: clip; /* 用 clip 而不是 hidden，費用試算的總額列才能黏在下方 */
+  padding: calc(env(safe-area-inset-top, 0px) + 44px) var(--space-5) calc(env(safe-area-inset-bottom, 0px) + 110px); /* 下方留給選單 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ---------- 標題 ---------- */
+.page-title { font-size: var(--fs-xl); font-weight: 700; line-height: 1.3; }
+.page-sub { font-size: var(--fs-sm); color: var(--color-muted); }
+.head { display: flex; flex-direction: column; gap: var(--space-1); }
+.head-row { display: flex; align-items: center; gap: 10px; }
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 14px var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.card--sage  { background: var(--color-sage-tint); }
+.card--peach { background: var(--color-peach); }
+.card--lav   { background: var(--color-lav); }
+.card--dark  { background: var(--color-ink); color: #fff; }
+.card-title { font-size: var(--fs-md); font-weight: 700; }
+.card-label { font-size: var(--fs-sm); font-weight: 700; color: var(--color-ink-2); }
+.hint { font-size: 12px; color: var(--color-muted); line-height: 1.5; }
+.warn { font-size: var(--fs-sm); color: var(--color-peach-ink); line-height: 1.5; }
+
+/* ---------- 按鈕 ---------- */
+.btn {
+  height: 52px; border: 0; border-radius: var(--radius-pill);
+  display: grid; place-items: center;
+  font-size: 16px; font-weight: 700;
+}
+.btn--primary { background: var(--color-sage); color: #fff; }
+.btn--dark    { background: var(--color-ink); color: #fff; }
+.btn--small   { height: 40px; padding: 0 14px; font-size: 14px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-pill);
+  background: var(--color-surface); display: grid; place-items: center; border: 0;
+}
+
+/* ---------- 選項膠囊（chip） ----------
+   選中狀態用 aria-pressed="true"，螢幕閱讀器也讀得到 */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  height: 36px; padding: 0 14px; border-radius: var(--radius-pill);
+  border: 1px solid var(--color-line-strong); background: var(--color-surface);
+  font-size: 14px;
+}
+.chip[aria-pressed="true"] { background: var(--color-ink); color: #fff; border-color: var(--color-ink); font-weight: 700; }
+.chips--fill .chip { flex-grow: 1; }
+
+/* ---------- 數字加減（stepper） ---------- */
+.stepper { display: flex; align-items: center; gap: var(--space-3); }
+.stepper__label { flex-grow: 1; display: flex; flex-direction: column; }
+.stepper__btn {
+  width: 44px; height: 44px; border-radius: var(--radius-pill); border: 0;
+  background: var(--color-soft); font-size: 22px;
+}
+.stepper__btn--plus { background: var(--color-ink); color: #fff; }
+.stepper__value { width: 76px; text-align: center; font-size: var(--fs-num); font-weight: 700; }
+.stepper__unit { font-size: var(--fs-sm); font-weight: 500; }
+
+/* ---------- 數字小卡 ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+.stat { background: var(--color-soft); border-radius: var(--radius-sm); padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; }
+.stat--alert { background: var(--color-peach); }
+.stat__name { font-size: 12px; color: var(--color-muted); }
+.stat__num { font-size: 18px; font-weight: 700; }
+.stat__usual { font-size: 10px; color: var(--color-muted); }
+
+/* ---------- 進度條 ---------- */
+.bar { height: 8px; border-radius: var(--radius-pill); background: #EFE9E1; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--color-sage); border-radius: inherit; }
+
+/* ---------- 三級判斷（meter） ---------- */
+.meter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.meter span { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-xs); text-align: center; }
+.meter span::before { content: ""; height: 8px; border-radius: var(--radius-pill); background: rgba(46,42,38,.12); }
+.meter[data-level="0"] span:nth-child(1)::before { background: var(--color-sage); }
+.meter[data-level="1"] span:nth-child(-n+2)::before { background: var(--color-peach-strong); }
+.meter[data-level="2"] span::before { background: var(--color-danger); }
+.meter[data-level="0"] span:nth-child(1),
+.meter[data-level="1"] span:nth-child(2),
+.meter[data-level="2"] span:nth-child(3) { font-weight: 700; }
+
+/* ---------- 票根提醒 ---------- */
+.ticket { display: flex; min-height: 64px; border-radius: 18px; overflow: hidden; background: var(--color-butter); }
+.ticket--sage { background: var(--color-sage-tint); }
+.ticket--peach { background: #F6D7C6; }
+.ticket__stub {
+  width: 64px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-right: 2px dashed rgba(46,42,38,.22); font-size: var(--fs-md); font-weight: 700;
+}
+.ticket__body { flex-grow: 1; padding: 8px 10px 8px 12px; display: flex; align-items: center; gap: 8px; }
+.ticket__text { flex-grow: 1; display: flex; flex-direction: column; gap: 2px; }
+.ticket__title { font-size: var(--fs-md); font-weight: 700; }
+.ticket__look { font-size: 12px; color: var(--color-ink-2); }
+.ticket__btn { height: 36px; padding: 0 12px; border-radius: var(--radius-pill); border: 0; background: rgba(255,255,255,.85); font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; }
+.ticket__done { display: none; font-size: 12px; font-weight: 700; color: var(--color-sage-ink); background: none; border: 0; }
+.ticket.is-done { opacity: .6; }
+.ticket.is-done .ticket__title { text-decoration: line-through; }
+.ticket.is-done .ticket__btn, .ticket.is-done .ticket__counts { display: none; }
+.ticket.is-done .ticket__done { display: inline; }
+.ticket__counts { display: flex; gap: 4px; }
+.bell { width: 30px; height: 26px; border: 0; border-radius: var(--radius-pill); background: rgba(255,255,255,.7); display: grid; place-items: center; color: var(--color-muted); padding: 0; }
+.bell[aria-pressed="true"] { background: var(--color-ink); color: #fff; }
+
+/* ---------- 下方彈出面板（sheet） ---------- */
+.sheet { position: fixed; inset: 0; z-index: 30; display: none; }
+.sheet.is-open { display: block; }
+.sheet__backdrop { position: absolute; inset: 0; border: 0; background: rgba(46,42,38,.4); }
+.sheet__panel {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: min(390px, 100%);
+  max-height: 92vh; overflow-y: auto; background: var(--color-bg);
+  border-radius: 28px 28px 0 0; padding: 14px var(--space-5) calc(env(safe-area-inset-bottom, 0px) + 28px); display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ---------- 分頁切換（tabs） ---------- */
+.seg { display: flex; gap: 2px; background: #EFE9E1; border-radius: var(--radius-pill); padding: 3px; }
+.seg button { height: 30px; padding: 0 10px; border: 0; border-radius: var(--radius-pill); background: transparent; font-size: 12px; }
+.seg button[aria-selected="true"] { background: #fff; font-weight: 700; }
+[data-panel][hidden] { display: none !important; }
+
+/* ---------- 底部選單 ---------- */
+.nav {
+  position: fixed; z-index: 10; left: 50%; transform: translateX(-50%); width: min(358px, calc(100% - 32px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); height: 64px;
+  border-radius: var(--radius-pill); background: var(--color-ink);
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: center; padding: 0 5px;
+}
+.nav a {
+  height: 52px; border-radius: var(--radius-pill); color: var(--color-on-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: var(--fs-xs);
+}
+.nav a[aria-current="page"] { background: var(--color-sage-light); color: var(--color-ink); font-weight: 700; }
+.nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- RWD：真的在手機上打開時，滿版顯示 ---------- */
+@media (max-width: 500px) {
+  body { background: var(--color-bg); }
+  .phone { width: 100%; min-height: 100vh; margin: 0; border-radius: 0; }
+}

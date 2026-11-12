@@ -74,20 +74,17 @@ export async function deleteReminder(id) {
   return check(await sb.from('reminders').delete().eq('id', id));
 }
 
-// 新寵物的預設提醒
-export async function seedReminders(pet, today) {
-  const rows =
-    pet.species === 'dog'
-      ? [
-          { title: '餵食', freq: 'daily', remind_time: '08:00', next_date: today },
-          { title: '散步', freq: 'daily', remind_time: '19:00', next_date: today },
-          { title: '體內驅蟲', freq: 'monthly', remind_time: null, next_date: addDays(today, 7) },
-        ]
-      : [
-          { title: '鏟貓砂', freq: 'daily', remind_time: '21:00', next_date: today },
-          { title: '餵食', freq: 'daily', remind_time: '08:00', next_date: today },
-          { title: '體內驅蟲', freq: 'monthly', remind_time: null, next_date: addDays(today, 7) },
-        ];
+// 新寵物的預設提醒：依餵食計畫排餐，加上清貓砂或散步、每月驅蟲
+export async function seedReminders(pet, today, plan) {
+  const meals = plan ? plan.meals : [{ time: '08:00', g: null }, { time: '19:00', g: null }];
+  const mealName = (t) => ({ '08:00': '早餐', '12:00': '午餐', '13:00': '午餐', '17:00': '晚餐', '19:00': '晚餐', '22:00': '宵夜' }[t] || '一餐');
+  const rows = meals.map((m) => ({
+    kind: 'feed', title: `餵${mealName(m.time)}`, amount_g: m.g, look: '看看有沒有吃完',
+    freq: 'daily', remind_time: m.time, next_date: today,
+  }));
+  if (pet.species === 'dog') rows.push({ kind: 'walk', title: '散步', look: '順便看看便便', freq: 'daily', remind_time: '18:30', next_date: today });
+  else rows.push({ kind: 'litter', title: '清貓砂', look: '順便數尿塊', freq: 'daily', remind_time: '21:00', next_date: today });
+  rows.push({ kind: 'deworm', title: '體內外驅蟲', look: '每月一次', freq: 'monthly', remind_time: null, next_date: addDays(today, 14), alarm: false });
   return check(await sb.from('reminders').insert(rows.map((r) => ({ ...r, pet_id: pet.id }))));
 }
 
@@ -125,4 +122,12 @@ export async function saveExpense(e) {
 }
 export async function deleteExpense(id) {
   return check(await sb.from('expenses').delete().eq('id', id));
+}
+
+// ---------- 「牠這樣正常嗎？」紀錄 ----------
+export async function saveCheck(row) {
+  return check(await sb.from('checks').insert(row).select().single());
+}
+export async function getCheck(id) {
+  return check(await sb.from('checks').select('*').eq('id', id).maybeSingle());
 }

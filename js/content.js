@@ -4,64 +4,6 @@
 export const DISCLAIMER =
   '本作品提供之資訊僅供輔助參考，不能取代獸醫師之診斷、治療或專業建議。貓犬之健康與營養需求可能因個體狀況而異，如有健康疑慮或需要調整飲食與照護方式，請諮詢合格獸醫師。';
 
-// 肢體與行為訊號。kind: mood（情緒）、health（身體）
-export const SIGNALS = {
-  cat: [
-    { key: '飛機耳', kind: 'mood', text: '耳朵往兩側壓平，常見於緊張、害怕或身體不舒服。' },
-    { key: '躲起來', kind: 'mood', text: '比平常更常躲著。剛到家很常見；如果已經適應了還常躲，可能是壓力或身體不適，貓咪很會隱藏不舒服。' },
-    { key: '叫聲變多', kind: 'mood', text: '可能是餓了、想引起注意，也可能是焦慮或不舒服。' },
-    { key: '一直舔毛', kind: 'mood', text: '過度理毛可能和壓力、皮膚癢或某處疼痛有關。' },
-    { key: '尾巴拍打', kind: 'mood', text: '尾巴大力甩動常代表煩躁，先讓牠安靜一下。' },
-    { key: '一直跑砂盆', kind: 'health', text: '頻繁進出貓砂盆卻尿得很少，可能是泌尿道問題，公貓尤其要小心，建議盡快諮詢獸醫。' },
-    { key: '嘔吐', kind: 'health', text: '偶爾吐毛球很常見；一天吐好幾次、吐完沒精神或不吃，就要諮詢獸醫。' },
-    { key: '拉肚子', kind: 'health', text: '換飼料太快、壓力或寄生蟲都可能造成軟便。持續超過一天或帶血，請諮詢獸醫。' },
-  ],
-  dog: [
-    { key: '夾尾巴', kind: 'mood', text: '尾巴夾在後腿間，常代表害怕或不安。' },
-    { key: '躲起來', kind: 'mood', text: '剛到家想躲很常見；適應後還常躲，可能是壓力或身體不適。' },
-    { key: '舔嘴打哈欠', kind: 'mood', text: '不睏卻一直打哈欠、舔嘴，常是狗狗在表達緊張。' },
-    { key: '吠叫變多', kind: 'mood', text: '可能是無聊、焦慮或想保護家，也可能是分離焦慮。' },
-    { key: '亂尿', kind: 'mood', text: '新環境還沒學會定點很正常；突然變多也可能和壓力或泌尿問題有關。' },
-    { key: '破壞東西', kind: 'mood', text: '常見於精力過剩、無聊或獨處焦慮，多帶出門消耗體力會有幫助。' },
-    { key: '嘔吐', kind: 'health', text: '偶爾吐一次不一定嚴重；反覆嘔吐、沒精神或不吃，就要諮詢獸醫。' },
-    { key: '拉肚子', kind: 'health', text: '換飼料太快、壓力或寄生蟲都可能造成軟便。持續超過一天或帶血，請諮詢獸醫。' },
-  ],
-};
-
-export function signalsFor(species) {
-  return SIGNALS[species] || SIGNALS.cat;
-}
-
-export function signalText(species, key) {
-  const s = signalsFor(species).find((x) => x.key === key);
-  return s ? s.text : '';
-}
-
-// 每日紀錄的選項文字
-export const LOG_FIELDS = {
-  food: { label: '食量', hint: '和平常比', opts: ['少', '正常', '多'] },
-  water: { label: '飲水', hint: '和平常比', opts: ['少', '正常', '多'] },
-  urine: {
-    label: { cat: '尿塊數', dog: '小便次數' },
-    hint: { cat: '今天鏟到幾塊', dog: '和平常比' },
-    opts: { cat: ['0–1 塊', '2–4 塊', '5 塊以上'], dog: ['少', '正常', '多'] },
-  },
-  energy: { label: '精神', hint: '活動力', opts: ['差', '普通', '好'] },
-};
-
-export function fieldLabel(field, species) {
-  const f = LOG_FIELDS[field];
-  return typeof f.label === 'string' ? f.label : f.label[species] || f.label.cat;
-}
-export function fieldHint(field, species) {
-  const f = LOG_FIELDS[field];
-  return typeof f.hint === 'string' ? f.hint : f.hint[species] || f.hint.cat;
-}
-export function fieldOpts(field, species) {
-  const f = LOG_FIELDS[field];
-  return Array.isArray(f.opts) ? f.opts : f.opts[species] || f.opts.cat;
-}
-
 // 適應期小知識（依到家天數）
 export function adaptationTip(species, day) {
   const cat = species !== 'dog';
@@ -148,14 +90,9 @@ export const REHOME_STEPS = [
   '不要把牠放生或丟在外面。在台灣棄養寵物違反《動物保護法》，牠也很難在外面活下去。',
 ];
 
-// 提醒的預設選項
-export const REMINDER_PRESETS = {
-  cat: ['鏟貓砂', '餵食', '換水', '陪玩', '體內驅蟲', '體外驅蟲', '疫苗', '剪指甲'],
-  dog: ['餵食', '散步', '換水', '體內驅蟲', '體外驅蟲', '心絲蟲預防', '疫苗', '洗澡'],
-};
-
 export const FREQ_LABEL = {
   daily: '每天',
+  weekdays: '平日',
   weekly: '每週',
   monthly: '每月',
   yearly: '每年',
@@ -268,3 +205,57 @@ export const EXPENSE_CATS = [
   { key: 'grooming', name: '美容', color: '#7B4FA0', items: ['洗澡', '剪毛', '剪指甲'] },
   { key: 'other', name: '其他', color: '#6B7378', items: ['寵物保險', '寄宿', '訓練'] },
 ];
+
+// ---------- 新介面 ----------
+// 「牠這樣正常嗎？」的症狀選項
+export function askGroups(species) {
+  const dog = species === 'dog';
+  return [
+    { label: '吃喝', items: ['不吃', '吃很少', '吐了', '喝很多水'] },
+    { label: '上廁所', items: ['拉肚子', '蹲很久尿不出來', '尿很多', '沒有便便'] },
+    { label: '樣子', items: ['一直躲起來', '一直叫', '沒精神', dog ? '夾尾巴' : '飛機耳', '一直抓癢', '打噴嚏'] },
+  ];
+}
+export const DURATIONS = [
+  { key: 'today', label: '今天才開始' },
+  { key: '1-2d', label: '1–2 天' },
+  { key: '2d+', label: '超過 2 天' },
+];
+
+export const STOOL = [
+  { key: 'formed', label: '成形' },
+  { key: 'soft', label: '偏軟' },
+  { key: 'diarrhea', label: '拉肚子' },
+  { key: 'none', label: '沒有' },
+];
+// 精神：2 很好、1 普通、0 沒精神
+export const ENERGY = [
+  { v: 2, label: '很好' },
+  { v: 1, label: '普通' },
+  { v: 0, label: '沒精神' },
+];
+
+// 提醒（鬧鐘）的類型
+export const KINDS = [
+  { key: 'feed', label: '餵食', look: '看看有沒有吃完', tone: '' },
+  { key: 'litter', label: '清貓砂', look: '順便數尿塊', tone: 'sage', cat: true },
+  { key: 'walk', label: '散步', look: '順便看看便便', tone: 'sage', dog: true },
+  { key: 'med', label: '餵藥', look: '照醫生交代的份量', tone: 'peach' },
+  { key: 'deworm', label: '驅蟲', look: '體內外驅蟲', tone: 'peach' },
+  { key: 'vaccine', label: '疫苗', look: '以醫生排的日期為準', tone: 'peach' },
+  { key: 'other', label: '其他', look: '', tone: '' },
+];
+
+// 餵食頁：依生命階段建議準備的食物（不推薦品牌）
+export function shopList(species, months) {
+  const dog = species === 'dog';
+  const young = months !== null && months < 12;
+  const who = dog ? (young ? '幼犬' : '成犬') : (young ? '幼貓' : '成貓');
+  return {
+    yes: [
+      [`${who}配方乾糧`, young ? `包裝寫「${who}」或「12 個月以下」` : `包裝寫「${who}」或「全齡」`],
+      dog ? ['乾淨的水', '每天換水，散步回來多補充'] : [`${who}主食罐`, '一週幾次，幫助多喝水'],
+    ],
+    no: young ? `成${dog ? '犬' : '貓'}飼料、牛奶、各種零食` : '人吃的食物、牛奶、過多零食',
+  };
+}
